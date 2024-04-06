@@ -1,6 +1,8 @@
 using SQLApp.Components;
+using System.Data.Entity;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.EntityFrameworkCore.ModelConfiguration;
+using System.Data.Entity.ModelConfiguration.Conventions.Edm.Db;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,5 +77,9 @@ app.Run();
                 var connectionString = conf.GetConnectionString("DefaultConnection");
                 optionsBuilder.UseSqlServer(connectionString);
             }
+        }
+        protected override OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
         }
     }
