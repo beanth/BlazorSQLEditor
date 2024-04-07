@@ -4,15 +4,22 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Database Entries:</h1>
+<h1>Database Entries</h1>
 
 <button class="btn btn-primary" @onclick="AddNewEntry">Add new entry</button>
+<input @oninput="OnInput" value=@entryName>
 <br>
 
 @code
 {
+    public void OnInput(ChangeEventArgs a)
+    {
+        entryName = a.Value.ToString();
+    }
+
     BloggingContext db = new BloggingContext();
     IOrderedQueryable<Blog> query;
+    private string entryName = "Robert'); DROP TABLE STUDENTS; --";
     protected override void OnInitialized()
     {
         query = from b in db.Blogs
@@ -22,9 +29,9 @@
 
     private void AddNewEntry(MouseEventArgs args)
     {
-        Console.WriteLine("CLICKED!");
-        db.Blogs.Add(new Blog{Name="Button add"});
+        db.Blogs.Add(new Blog{Name=entryName});
         db.SaveChanges();
+        entryName = ""; // clear input
     }
 }
 
