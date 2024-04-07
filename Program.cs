@@ -33,17 +33,6 @@ db.Database.EnsureCreated();
 db.Blogs.Add(new Blog{Name = "Test2"});
 db.SaveChanges();
 
-Console.WriteLine("All blogs in the database:");
-
-var query = from b in db.Blogs
-            orderby b.Name
-            select b;
-
-Console.WriteLine("All blogs in the database:");
-foreach (var item in query)
-{
-    Console.WriteLine(item.Name);
-}
 
 app.Run();
 
