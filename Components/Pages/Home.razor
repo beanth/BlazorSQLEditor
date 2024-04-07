@@ -9,15 +9,15 @@
 <button class="btn btn-primary" @onclick="AddNewEntry">Add new entry</button>
 <br>
 
-@code {
+@code
+{
     BloggingContext db = new BloggingContext();
     IOrderedQueryable<Blog> query;
-    protected override void OnParametersSet()
+    protected override void OnInitialized()
     {
         query = from b in db.Blogs
         orderby b.BlogId
         select b;
-        //StateHasChanged();
     }
 
     private void AddNewEntry(MouseEventArgs args)
@@ -27,6 +27,7 @@
         db.SaveChanges();
     }
 }
+
 @foreach (var item in query)
 {
     <par>[@item.BlogId] @item.Name</par>
