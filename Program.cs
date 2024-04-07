@@ -30,8 +30,8 @@ app.MapRazorComponents<App>()
 using var db = new BloggingContext();
 db.Database.EnsureCreated();
 
-db.Blogs.Add(new Blog{Name = "Test2"});
-db.SaveChanges();
+//db.Blogs.Add(new Blog{Name = "Test"});
+//db.SaveChanges();
 
 
 app.Run();
