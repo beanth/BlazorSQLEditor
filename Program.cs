@@ -1,8 +1,7 @@
 using SQLApp.Components;
-using System.Data.Entity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ModelConfiguration;
-using System.Data.Entity.ModelConfiguration.Conventions.Edm.Db;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +27,13 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-var db = new BloggingContext();
+using var db = new BloggingContext();
+db.Database.EnsureCreated();
 
-db.Blogs.Add(new Blog{Name = "Test"});
+db.Blogs.Add(new Blog{Name = "Test2"});
 db.SaveChanges();
+
+Console.WriteLine("All blogs in the database:");
 
 var query = from b in db.Blogs
             orderby b.Name
@@ -45,41 +47,42 @@ foreach (var item in query)
 
 app.Run();
 
-    public class Blog
-    {
-        public int BlogId { get; set; }
-        public string Name { get; set; }
+public class Blog
+{
+    public int BlogId { get; set; }
+    public string Name { get; set; }
 
-        public virtual List<Post> Posts { get; set; }
-    }
+    public List<Post> Posts { get; } = new();
+}
 
-    public class Post
-    {
-        public int PostId { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+public class Post
+{
+    public int PostId { get; set; }
+    public string Title { get; set; }
+    public string Content { get; set; }
 
-        public int BlogId { get; set; }
-        public virtual Blog Blog { get; set; }
-    }
+    public int BlogId { get; set; }
+    public Blog Blog { get; set; }
+}
 
-    public class BloggingContext : DbContext
-    {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
+public class BloggingContext : DbContext
+{
+    public DbSet<Blog> Blogs { get; set; }
+    public DbSet<Post> Posts { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            if (!optionsBuilder.IsConfigured) {
-                IConfigurationRoot conf = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json")
-                    .Build();
-                var connectionString = conf.GetConnectionString("DefaultConnection");
-                optionsBuilder.UseSqlServer(connectionString);
-            }
-        }
-        protected override OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
+        if (!optionsBuilder.IsConfigured) {
+            IConfigurationRoot conf = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            var connectionString = conf.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseSqlServer(connectionString);
         }
     }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Conventions.Remove(typeof(TableNameFromDbSetConvention));
+    }
+}
